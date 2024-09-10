@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import { Pokemon } from '../models/Pokemon';
 
 export default defineComponent({
@@ -25,12 +25,18 @@ export default defineComponent({
     let loading = ref(true);
 
     function handlePokemons(event: any) {
-      const parsedPokenmons = JSON.parse(event.detail.message);
-      pokemons.value = parsedPokenmons;
+      const parsedPokemons = JSON.parse(event.detail.message);
+      pokemons.value = parsedPokemons;
       loading.value = false;
     }
 
-    window.addEventListener('HybridWebViewMessageReceived', handlePokemons);
+    onMounted(() => {
+      window.addEventListener('HybridWebViewMessageReceived', handlePokemons);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('HybridWebViewMessageReceived', handlePokemons);
+    });
 
     return {
       pokemons,
@@ -38,14 +44,15 @@ export default defineComponent({
     };
   },
 });
-
-
 </script>
 
 <style scoped>
 .card-list {
+  display: flex;
+  flex-wrap: wrap;
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 .card-item {
@@ -53,6 +60,7 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   margin: 10px;
+  width: 150px; /* Adjust the width as needed */
 }
 
 .card-image {
